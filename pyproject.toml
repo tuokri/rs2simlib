@@ -17,6 +17,10 @@ classifiers = [
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "numba>=0.56.0",
+    "numpy>=1.22.4",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/tuokri/rs2sim-lib"
@@ -26,3 +30,11 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "rs2simlib/_version.py"
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest"
+]
+
+[tool.hatch.envs.test.scripts]
+run = "pytest"
