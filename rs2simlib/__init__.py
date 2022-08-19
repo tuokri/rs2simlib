@@ -1,9 +1,12 @@
 from pathlib import Path as _Path
 
+from . import fast
+
 __all__ = [
     "version",
     "__version__",
     "__version_tuple__",
+    "fast",
 ]
 
 _version = {}

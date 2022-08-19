@@ -3,8 +3,8 @@ from typing import Tuple
 import numba as nb
 import numpy as np
 
-from drag.fastdrag import drag_g1
-from drag.fastdrag import drag_g7
+from rs2simlib.fast.drag import drag_g1
+from rs2simlib.fast.drag import drag_g7
 
 
 @nb.njit
