@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rs2simlib"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
     { name = "tuokri", email = "tuokri@tuta.io" },
 ]
@@ -23,3 +23,6 @@ classifiers = [
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "rs2simlib/_version.py"

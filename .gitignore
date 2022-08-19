@@ -131,3 +131,5 @@ dmypy.json
 # PyCharm
 .idea/
 
+# Dynamically generated version file.
+rs2simlib/_version.py
