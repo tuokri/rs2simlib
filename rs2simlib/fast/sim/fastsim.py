@@ -12,7 +12,7 @@ SCALE_FACTOR_INVERSE = np.float64(0.065618)
 SCALE_FACTOR = np.float64(15.24)
 X1 = np.float64(0.0008958245617)
 X2 = np.float64(0.00020874137882624)
-GRAVITY = np.float64(490.3325)
+GRAVITY = np.float64(490.3325)  # 490.3325 UU/s = 9.80665 m/s
 
 
 @nb.njit
@@ -133,3 +133,25 @@ def simulate(
     ret[4] = time_at_flight
     ret[5] = bullet_velocity
     return ret
+
+
+def trigger_jit():
+    drag_g1(np.float64(0.1))
+    drag_g7(np.float64(0.1))
+
+    simulate(
+        sim_time=np.float64(0.21),
+        time_step=np.float64(0.1),
+        drag_func=7,
+        ballistic_coeff=np.float64(0.15),
+        aim_dir_x=np.float64(0.0),
+        aim_dir_y=np.float64(0.0),
+        muzzle_velocity=np.float64(15000.0),
+        falloff_x=np.array([1.0, 1.0]),
+        falloff_y=np.array([0.1, 0.1]),
+        bullet_damage=np.int64(100),
+        instant_damage=np.int64(101),
+        pre_fire_trace_len=np.int64(1),
+        start_loc_x=np.float64(0.0),
+        start_loc_y=np.float64(0.0),
+    )
