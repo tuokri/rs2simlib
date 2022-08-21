@@ -1,12 +1,18 @@
 from pathlib import Path as _Path
 
+from . import dataio
+from . import drag
 from . import fast
+from . import models
 
 __all__ = [
     "version",
     "__version__",
     "__version_tuple__",
+    "dataio",
+    "drag",
     "fast",
+    "models",
 ]
 
 _version = {}  # type: ignore[var-annotated]

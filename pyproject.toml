@@ -62,8 +62,10 @@ draw = "python scripts/draw_plots.py"
 plugins = [
     "numpy.typing.mypy_plugin"
 ]
+# TODO: fix models typing.
 exclude = [
-    "scripts/"
+    "scripts/",
+    "rs2simlib/models/",
 ]
 
 [[tool.mypy.overrides]]
@@ -78,4 +80,6 @@ filterwarnings = [
 [tool.flake8]
 per-file-ignores = [
     "rs2simlib/fast/drag/fastdrag.py:C901",
+    "rs2simlib/drag/drag.py:C901",
+    "rs2simlib/dataio/dataio.py:C901",
 ]
