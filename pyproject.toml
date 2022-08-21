@@ -21,6 +21,7 @@ dependencies = [
     "numba>=0.56.0",
     "numpy>=1.22.4",
     "scipy>=1.9.0",
+    "Flake8-pyproject>=1.1.0.post0",
 ]
 
 [project.urls]
@@ -64,4 +65,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::numba.NumbaExperimentalFeatureWarning",
+]
+
+[tool.flake8]
+per-file-ignores = [
+    "rs2simlib/fast/drag/fastdrag.py:C901",
 ]
