@@ -56,7 +56,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.plots.scripts]
-draw = "python scripts/plot_test.py"
+draw = "python scripts/draw_plots.py"
 
 [tool.mypy]
 plugins = [
