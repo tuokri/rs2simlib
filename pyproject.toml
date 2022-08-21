@@ -50,6 +50,14 @@ platform.windows.scripts = [
     'lint=.\scripts\lint.bat"',
 ]
 
+[tool.hatch.envs.plots]
+dependencies = [
+    "matplotlib",
+]
+
+[tool.hatch.envs.plots.scripts]
+draw = "python scripts/plot_test.py"
+
 [tool.mypy]
 plugins = [
     "numpy.typing.mypy_plugin"
