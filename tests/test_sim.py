@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 import pytest
-
 from rs2simlib.fast import sim as fastsim
 
 # noinspection DuplicatedCode
@@ -66,38 +65,7 @@ sim_test_data = [
 @pytest.mark.parametrize(
     "sim_params,sim_results,arr_len", sim_test_data)
 def test_fast_simulate(sim_params, sim_results, arr_len):
-    time_step = sim_params["time_step"]
-    sim_time = sim_params["sim_time"]
-    bc = sim_params["ballistic_coeff"]
-    aim_dir_x = sim_params["aim_dir_x"]
-    aim_dir_y = sim_params["aim_dir_y"]
-    muzzle_velocity = sim_params["muzzle_velocity"]
-    falloff_x = sim_params["falloff_x"]
-    falloff_y = sim_params["falloff_y"]
-    bullet_damage = sim_params["bullet_damage"]
-    instant_damage = sim_params["instant_damage"]
-    pre_fire_trace_len = sim_params["pre_fire_trace_len"]
-    start_loc_x = sim_params["start_loc_x"]
-    start_loc_y = sim_params["start_loc_y"]
-    drag_func = sim_params["drag_func"]
-
-    results = fastsim.simulate(
-        sim_time=sim_time,
-        time_step=time_step,
-        drag_func=drag_func,
-        ballistic_coeff=bc,
-        aim_dir_x=aim_dir_x,
-        aim_dir_y=aim_dir_y,
-        muzzle_velocity=muzzle_velocity,
-        falloff_x=falloff_x,
-        falloff_y=falloff_y,
-        bullet_damage=bullet_damage,
-        instant_damage=instant_damage,
-        pre_fire_trace_len=pre_fire_trace_len,
-        start_loc_x=start_loc_x,
-        start_loc_y=start_loc_y,
-    )
-
+    results = fastsim.simulate(**sim_params)
     assert np.size(results) == arr_len * 6
     assert np.size(results, axis=0) == 6
     assert np.size(results, axis=1) == arr_len
