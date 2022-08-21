@@ -34,8 +34,34 @@ version-file = "rs2simlib/_version.py"
 
 [tool.hatch.envs.test]
 dependencies = [
-    "pytest"
+    "pytest",
+    "mypy",
+    "flake8",
 ]
 
 [tool.hatch.envs.test.scripts]
-run = "pytest"
+test = "pytest"
+types = "mypy rs2simlib --show-error-codes"
+lint = "scripts/lint.sh"
+
+[tool.hatch.envs.test.overrides]
+platform.windows.scripts = [
+    'lint=.\scripts\lint.bat"',
+]
+
+[tool.mypy]
+plugins = [
+    "numpy.typing.mypy_plugin"
+]
+exclude = [
+    "scripts/"
+]
+
+[[tool.mypy.overrides]]
+module = "numba"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::numba.NumbaExperimentalFeatureWarning",
+]

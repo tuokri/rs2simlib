@@ -9,7 +9,7 @@ __all__ = [
     "fast",
 ]
 
-_version = {}
+_version = {}  # type: ignore[var-annotated]
 with open(f"{_Path(__file__).parent}/_version.py") as _fp:
     exec(_fp.read(), _version)
 

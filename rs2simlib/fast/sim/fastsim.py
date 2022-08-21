@@ -1,4 +1,5 @@
 import math
+from typing import Callable
 
 import numba as nb
 import numpy as np
@@ -7,65 +8,62 @@ import numpy.typing as npt
 from rs2simlib.fast.drag import drag_g1
 from rs2simlib.fast.drag import drag_g7
 
-SCALE_FACTOR_INVERSE = nb.float64(0.065618)
-SCALE_FACTOR = nb.float64(15.24)
+SCALE_FACTOR_INVERSE = np.float64(0.065618)
+SCALE_FACTOR = np.float64(15.24)
+X1 = np.float64(0.0008958245617)
+X2 = np.float64(0.00020874137882624)
 
 
 @nb.njit
-def clamp(n: nb.float64,
-          smallest: nb.float64,
-          largest: nb.float64) -> nb.float64:
-    return max(smallest, min(n, largest))
+def clamp(n: np.float64,
+          smallest: np.float64,
+          largest: np.float64) -> np.float64:
+    return np.float64(
+        max(smallest, min(n, largest)))  # type: ignore[call-overload]
 
 
 @nb.njit
 def calc_damage(
         velocity: npt.NDArray[np.float64],
-        muzzle_velocity: nb.float64,
-        damage: nb.int32,
-        falloff_x: npt.NDArray,
-        falloff_y: npt.NDArray,
-) -> nb.float64:
+        muzzle_velocity: np.float64,
+        damage: np.int64,
+        falloff_x: npt.NDArray[np.float64],
+        falloff_y: npt.NDArray[np.float64],
+) -> np.float64:
     v_size_sq = np.linalg.norm(velocity) ** 2
     power_left = v_size_sq / (muzzle_velocity ** 2)
-    damage *= power_left
-    energy_transfer = np.interp(
+    d = damage * power_left
+    energy_transfer: np.float64 = np.interp(
         x=v_size_sq,
         xp=falloff_x,
         fp=falloff_y,
-    )
+    )  # type: ignore[assignment]
     energy_transfer = clamp(
         energy_transfer,
         smallest=falloff_y[0],
         largest=falloff_y[-1],
     )
-    return damage * energy_transfer
+    return d * energy_transfer
 
 
 @nb.njit
 def simulate(
-        sim_time: nb.float64,
-        time_step: nb.float64,
-        drag_func: nb.int32,
-        ballistic_coeff: nb.float64,
-        aim_dir_x: nb.float64,
-        aim_dir_y: nb.float64,
-        muzzle_velocity: nb.float64,
-        falloff_x: npt.NDArray,
-        falloff_y: npt.NDArray,
-        bullet_damage: nb.int32,
-        instant_damage: nb.int32,
-        pre_fire_trace_len: nb.int32,
-        start_loc_x: nb.float64 = 0.0,
-        start_loc_y: nb.float64 = 0.0,
-) -> npt.NDArray[npt.NDArray[np.float64]]:
-    d: nb.float64
-    v_size: nb.float64
-    mach: nb.float64
-    v: nb.float64
-    cd: nb.float64
-    damage: nb.float64
-    flight_time = nb.float64(0.0)
+        sim_time: np.float64,
+        time_step: np.float64,
+        drag_func: np.int64,
+        ballistic_coeff: np.float64,
+        aim_dir_x: np.float64,
+        aim_dir_y: np.float64,
+        muzzle_velocity: np.float64,
+        falloff_x: nb.typed.List,
+        falloff_y: nb.typed.List,
+        bullet_damage: np.int64,
+        instant_damage: np.int64,
+        pre_fire_trace_len: np.int64,
+        start_loc_x=np.float64(0.0),
+        start_loc_y=np.float64(0.0),
+) -> npt.ArrayLike:
+    flight_time = np.float64(0.0)
     location = np.array([start_loc_x, start_loc_y], dtype=np.float64)
     prev_loc = location.copy()
     bc_inverse = 1.0 / ballistic_coeff
@@ -73,7 +71,8 @@ def simulate(
     velocity /= np.linalg.norm(velocity)
     velocity *= muzzle_velocity
 
-    drag_func = drag_g7 if (drag_func == 7) else drag_g1
+    drag_function: Callable[[np.float64], np.float64] = (
+        drag_g7 if (drag_func == 7) else drag_g1)
     num_steps = math.ceil(sim_time / time_step)
     arr_len = num_steps - 1
 
@@ -84,16 +83,18 @@ def simulate(
     time_at_flight = np.empty(arr_len, dtype=np.float64)
     bullet_velocity = np.empty(arr_len, dtype=np.float64)
 
-    i = nb.int32(0)
+    i = np.int64(0)
     while (flight_time < sim_time) and (i <= arr_len):
         flight_time += time_step
-        v_size = np.linalg.norm(velocity)
-        v = v_size * SCALE_FACTOR_INVERSE
-        mach = v * 0.0008958245617
-        cd = drag_func(mach)
+        # noinspection PyTypeChecker
+        v_size: np.float64 = np.linalg.norm(velocity)
+        # noinspection PyTypeChecker
+        v: np.float64 = v_size * SCALE_FACTOR_INVERSE
+        mach = v * X1
+        # noinspection PyTypeChecker
+        cd = drag_function(mach)
         velocity = (
-                0.00020874137882624
-                * (cd * bc_inverse) * np.square(v)
+                X2 * (cd * bc_inverse) * np.square(v)
                 * SCALE_FACTOR
                 * (-1 * (velocity / v_size * time_step)))
         velocity[1] -= (490.3325 * time_step)
@@ -101,7 +102,7 @@ def simulate(
         prev_loc[0] = location[0]
         prev_loc[1] = location[1]
         location += loc_change
-        d = abs(np.linalg.norm(prev_loc - location))
+        d = np.float64(abs(np.linalg.norm(prev_loc - location)))
         distance[i] += d
         if d <= pre_fire_trace_len:
             damage[i] = instant_damage

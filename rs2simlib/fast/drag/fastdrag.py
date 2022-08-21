@@ -1,8 +1,13 @@
+import typing
+
 import numba as nb
+import numpy as np
 
 
-@nb.njit
-def drag_g1(mach: nb.float32) -> nb.float32:
+# noinspection PyTypeChecker
+@typing.no_type_check
+@nb.njit("float64(float64)")
+def drag_g1(mach: np.float64) -> np.float64:
     if mach >= 1.60:
         if mach >= 2.70:
             if mach >= 3.60:
@@ -177,8 +182,10 @@ def drag_g1(mach: nb.float32) -> nb.float32:
                     return 0.2629
 
 
-@nb.njit
-def drag_g7(mach: nb.float32) -> nb.float32:
+# noinspection PyTypeChecker
+@typing.no_type_check
+@nb.njit("float64(float64)")
+def drag_g7(mach: np.float64) -> np.float64:
     if mach >= 1.60:
         if mach >= 2.70:
             if mach >= 3.60:
