@@ -170,19 +170,6 @@ class Weapon(ClassBase):
         return self.get_attr("pre_fire_length", invalid_value=-1)
 
 
-@dataclass
-class WeaponLoadout(ClassBase):
-    """Alternate bullet loadout for a weapon.
-    TODO: how to name these? Is is better to just
-      use another weapon class with _loadoutX suffix?
-    """
-    weapon: Weapon
-    bullet: Bullet
-
-    def __hash__(self) -> int:
-        return super().__hash__()
-
-
 PROJECTILE = Bullet(
     name="Projectile",
     damage=0,
@@ -212,8 +199,8 @@ str_to_df = {
 @dataclass
 class WeaponSimulation:
     weapon: Weapon
-    velocity: np.ndarray = np.array([1, 0], dtype=np.longfloat)
-    location: np.ndarray = np.array([0, 1], dtype=np.longfloat)
+    velocity: np.ndarray = np.array([1, 0], dtype=np.float64)
+    location: np.ndarray = np.array([0, 1], dtype=np.float64)
     bullet: Bullet = field(init=False)
     sim: "BulletSimulation" = field(init=False)
 
@@ -259,8 +246,8 @@ class BulletSimulation:
     flight_time: float = 0
     bc_inverse: float = 0
     distance_traveled_uu: float = 0
-    velocity: np.ndarray = np.array([1, 0], dtype=np.longfloat)
-    location: np.ndarray = np.array([0, 1], dtype=np.longfloat)
+    velocity: np.ndarray = np.array([1, 0], dtype=np.float64)
+    location: np.ndarray = np.array([0, 1], dtype=np.float64)
     fo_x: np.ndarray = field(init=False)
     fo_y: np.ndarray = field(init=False)
 
@@ -303,13 +290,10 @@ class BulletSimulation:
         self.flight_time += delta_time
         if (self.velocity == 0).all():
             return
-        # FLOAT V = Velocity.Size() * UCONST_ScaleFactorInverse.
         v_size = np.linalg.norm(self.velocity)
         v = v_size * SCALE_FACTOR_INVERSE
         mach = v * 0.0008958245617
         cd = self.calc_drag_coeff(mach)
-        # FVector AddVelocity = 0.00020874137882624 * (CD * BCInverse)
-        # * Square(V) * UCONST_ScaleFactor * (-1 * VelocityNormal * DeltaTime);
         self.velocity += (
                 0.00020874137882624
                 * (cd * self.bc_inverse) * np.square(v)
@@ -321,7 +305,6 @@ class BulletSimulation:
         # print(np.square(v))
         # print(self.velocity)
         # print(v_size)
-        # FLOAT ZAcceleration = 490.3325 * DeltaTime; // 490.3325 UU/s = 9.80665 m/s.
         self.velocity[1] -= (490.3325 * delta_time)
         loc_change = self.velocity * delta_time
         prev_loc = self.location.copy()
@@ -339,20 +322,12 @@ class BulletSimulation:
         return damage
 
 
+# TODO: Rename to e.g. split_fo.
 def interp_dmg_falloff(arr: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    """Return damage falloff curve x and y sub-arrays with
-    zero damage speed data point added added via interpolation.
-    TODO: actually, let's not do any interpolation for now.
+    """Return damage falloff array as two separate
+    arrays (x, y).
     """
     harr = np.hsplit(arr, 2)
     x = harr[0].ravel()
     y = harr[1].ravel()
-    # f_xtoy = interp1d(x, y, fill_value="extrapolate", kind="linear")
-    # try:
-    #     f_ytox = interp1d(y, x, fill_value="extrapolate", kind="linear")
-    # except ValueError:
-    #     return x, y
-    # zero_dmg_speed = f_ytox(1)
-    # x = np.insert(x, 0, zero_dmg_speed)
-    # y = np.insert(y, 0, 1)
     return x, y
