@@ -3,6 +3,8 @@ from dataclasses import field
 from enum import Enum
 from typing import Any
 from typing import Callable
+from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
 
@@ -26,11 +28,14 @@ class ParseResult:
     class_name: str = ""
     parent_name: str = ""
 
+    def __eq__(self, other: "ParseResult"):
+        return self.class_name.lower() == other.class_name.lower()
+
 
 @dataclass
 class WeaponParseResult(ParseResult):
-    bullet_name: str = ""
-    instant_damage: int = -1
+    bullet_names: Dict[int, str] = field(default_factory=dict)
+    instant_damages: Dict[int, int] = field(default_factory=dict)
     pre_fire_length: int = -1
 
 
@@ -47,6 +52,9 @@ class BulletParseResult(ParseResult):
 class ClassBase:
     name: str = field(hash=True)
     parent: Optional["ClassBase"]
+
+    def __eq__(self, other: "ClassBase"):
+        return self.name.lower() == other.name.lower()
 
     def __hash__(self) -> int:
         return hash(self.name)
@@ -153,18 +161,37 @@ class Bullet(ClassBase):
 @dataclass
 class Weapon(ClassBase):
     parent: Optional["Weapon"]
-    bullet: Optional[Bullet]
-    instant_damage: int
+    bullets: List[Optional[Bullet]]
+    instant_damages: List[int]
     pre_fire_length: int
 
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def get_bullet(self) -> Bullet:
-        return self.get_attr("bullet")
+    def _get_attr_opt_list(self, attr: str) -> Optional[Any]:
+        attrs = getattr(self, attr)
+        if any(attrs):
+            return attrs
+        parent = self.parent
+        while not any(attrs):
+            attrs = getattr(parent, attr)
+            parent = parent.parent
+            if parent.name == parent.parent.name:
+                attrs = getattr(parent.parent, attr)
+                break
+        return attrs
 
-    def get_instant_damage(self) -> int:
-        return self.get_attr("instant_damage", invalid_value=-1)
+    def get_bullets(self) -> List[Optional[Bullet]]:
+        return self._get_attr_opt_list("bullets")
+
+    def get_bullet(self, index: int) -> Optional[Bullet]:
+        return self.get_bullets()[index]
+
+    def get_instant_damages(self) -> List[int]:
+        return self._get_attr_opt_list("instant_damages")
+
+    def get_instant_damage(self, index: int) -> Optional[int]:
+        return self.get_instant_damages()[index]
 
     def get_pre_fire_length(self) -> int:
         return self.get_attr("pre_fire_length", invalid_value=-1)
@@ -183,10 +210,10 @@ PROJECTILE.parent = PROJECTILE
 
 WEAPON = Weapon(
     name="Weapon",
-    bullet=PROJECTILE,
+    bullets=[PROJECTILE],
     parent=None,
     pre_fire_length=50,
-    instant_damage=0
+    instant_damages=[0]
 )
 WEAPON.parent = WEAPON
 

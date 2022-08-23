@@ -14,7 +14,7 @@ sim_params = {
     "falloff_x": np.array([241491600.0, 1509322500.0]),
     "falloff_y": np.array([0.85, 0.2]),
     "bullet_damage": np.int64(147),
-    "instant_damage": np.int64(160),
+    "instant_damages": np.int64(160),
     "pre_fire_trace_len": np.int64(25 * 50),
     "start_loc_x": np.float64(0.0),
     "start_loc_y": np.float64(0.0),
