@@ -232,7 +232,7 @@ class WeaponSimulation:
     sim: "BulletSimulation" = field(init=False)
 
     def __post_init__(self):
-        self.bullet = self.weapon.get_bullet()
+        self.bullet = self.weapon.get_bullet(0)  # TODO
         self.sim = BulletSimulation(
             bullet=self.bullet,
             velocity=self.velocity.copy(),
