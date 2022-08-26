@@ -15,7 +15,7 @@ X2 = np.float64(0.00020874137882624)
 GRAVITY = np.float64(490.3325)  # 490.3325 UU/s = 9.80665 m/s
 
 
-@nb.njit
+@nb.njit(cache=True)
 def clamp(n: np.float64,
           smallest: np.float64,
           largest: np.float64) -> np.float64:
@@ -23,7 +23,7 @@ def clamp(n: np.float64,
         max(smallest, min(n, largest)))  # type: ignore[call-overload]
 
 
-@nb.njit
+@nb.njit(cache=True)
 def calc_damage(
         velocity: npt.NDArray[np.float64],
         muzzle_velocity: np.float64,
@@ -47,7 +47,7 @@ def calc_damage(
     return d * energy_transfer
 
 
-@nb.njit
+@nb.njit(cache=True)
 def simulate(
         sim_time: np.float64,
         time_step: np.float64,
