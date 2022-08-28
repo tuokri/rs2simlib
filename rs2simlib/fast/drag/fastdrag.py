@@ -4,9 +4,9 @@ import numba as nb
 import numpy as np
 
 
-# noinspection PyTypeChecker
+# noinspection PyTypeChecker,DuplicatedCode
 @typing.no_type_check
-@nb.njit("float64(float64)")
+@nb.njit(nb.float64(nb.float64), cache=True)
 def drag_g1(mach: np.float64) -> np.float64:
     if mach >= 1.60:
         if mach >= 2.70:
@@ -182,9 +182,9 @@ def drag_g1(mach: np.float64) -> np.float64:
                     return 0.2629
 
 
-# noinspection PyTypeChecker
+# noinspection PyTypeChecker,DuplicatedCode
 @typing.no_type_check
-@nb.njit("float64(float64)")
+@nb.njit(nb.float64(nb.float64), cache=True)
 def drag_g7(mach: np.float64) -> np.float64:
     if mach >= 1.60:
         if mach >= 2.70:
