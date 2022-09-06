@@ -72,6 +72,10 @@ exclude = [
 module = "numba"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "numba.core.types"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::numba.NumbaExperimentalFeatureWarning",
