@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
+from functools import lru_cache
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -15,6 +16,32 @@ from rs2simlib.drag import drag_g7
 
 SCALE_FACTOR_INVERSE = 0.065618
 SCALE_FACTOR = 15.24
+
+# In UU/s.
+MAS_49_GRENADE_RANGE_VELOCITIES = {
+    0: 1105,
+    1: 1210,
+    2: 1310,
+    3: 1400,
+    4: 1490,
+    5: 1570,
+    6: 1650,
+    7: 1725,
+    8: 1795,
+    9: 1865,
+    10: 1935,
+    11: 2000,
+    12: 2065,
+    13: 2125,
+    14: 2190,
+    15: 2240,
+    16: 2300,
+    17: 2360,
+    18: 2405,
+    19: 2460,
+    20: 2515,
+    21: 2570,
+}
 
 
 class DragFunction(Enum):
@@ -32,11 +59,19 @@ class ParseResult:
         return self.class_name.lower() == other.class_name.lower()
 
 
+# TODO: NumProjectiles and Spread?
 @dataclass
 class WeaponParseResult(ParseResult):
     bullet_names: Dict[int, str] = field(default_factory=dict)
     instant_damages: Dict[int, int] = field(default_factory=dict)
+    alt_ammo_loadouts: Dict[
+        int, "AltAmmoLoadoutParseResult"] = field(default_factory=dict)
     pre_fire_length: int = -1
+
+
+@dataclass
+class AltAmmoLoadoutParseResult(WeaponParseResult):
+    pass
 
 
 @dataclass
@@ -59,8 +94,7 @@ class ClassBase:
     def __hash__(self) -> int:
         return hash(self.name)
 
-    # TODO: Doesn't work with ProcessPoolExecutor.
-    # @lru_cache(maxsize=128, typed=True)
+    @lru_cache(maxsize=128, typed=True)
     def get_attr(self,
                  attr_name: str,
                  invalid_value: Optional[Any] = None) -> Any:

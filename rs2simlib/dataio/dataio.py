@@ -1,6 +1,8 @@
 import pickle
 import re
 from pathlib import Path
+from pprint import pprint
+from typing import Dict
 from typing import List
 from typing import MutableMapping
 from typing import Optional
@@ -15,6 +17,7 @@ from rs2simlib.models import PROJECTILE
 from rs2simlib.models import WEAPON
 from rs2simlib.models import Weapon
 from rs2simlib.models import WeaponParseResult
+from rs2simlib.models.models import AltAmmoLoadoutParseResult
 
 INSTANT_DAMAGE_PATTERN = re.compile(
     r"^\s*InstantHitDamage\(([\w_\d]+)\)\s*=\s*(\d+).*$",
@@ -52,6 +55,10 @@ WEAPON_BULLET_PATTERN = re.compile(
     r"^\s*WeaponProjectiles\(([\w_\d]+)\)\s*=\s*class\s*'(.*)'.*$",
     flags=re.IGNORECASE,
 )
+ALT_AMMO_LOADOUT_PATTERN = re.compile(
+    r"AltAmmoLoadouts\s*\((\d)\)\s*=\s*{\s*\n*\(([\d\w\n\s\[\]='\",._\-/]+)\)[\n\s]*}",
+    flags=re.IGNORECASE,
+)
 
 
 # def read_weapon_classes(path: Path) -> MutableMapping[str, Weapon]:
@@ -68,8 +75,8 @@ def pdumps_weapon_classes(weapon_classes: MutableMapping[str, Weapon]):
     })
 
 
-def ploads_weapon_classes(pickle_str: bytes) -> MutableMapping[str, Weapon]:
-    return pickle.loads(pickle_str)
+def ploads_weapon_classes(pickle_bytes: bytes) -> MutableMapping[str, Weapon]:
+    return pickle.loads(pickle_bytes)
 
 
 def parse_interp_curve(curve: str) -> np.ndarray:
@@ -108,21 +115,40 @@ def check_name(name1: str, name2: str):
             f"class name doesn't match filename: '{name1}' != '{name2}'")
 
 
-def get_non_comment_lines(path: Path) -> List[str]:
-    with path.open("r", encoding="latin-1") as file:
-        return [
-            d for d in
-            strip_comments(file.read()).split("\n")
-            if d.strip()
-        ]
+def get_non_comment_lines(data: str) -> List[str]:
+    return [
+        d for d in
+        strip_comments(data).split("\n")
+        if d.strip()
+    ]
+
+
+def parse_alt_ammo_loadouts(data: str) -> Dict[int, AltAmmoLoadoutParseResult]:
+    attributes = [x.strip() for x in data.split(",") if x]
+    attributes = [re.sub(r"\s", "", x) for x in attributes]
+    attributes = [x.split("=") for x in attributes]
+    attrib_dict = {
+        key: value for key, value in attributes
+    }
+
+    pprint(attrib_dict)
+
+    result = {}
+    if "WeaponContentClassIndex" not in attrib_dict:
+        spread_1 = None
+
+    return result
 
 
 def handle_weapon_file(path: Path, base_class_name: str
                        ) -> Optional[WeaponParseResult]:
-    data = get_non_comment_lines(path)
+    raw = path.read_text(encoding="latin-1")
+    data = get_non_comment_lines(raw)
 
     if not data:
         return None
+
+    has_alt_ammo = False
 
     result = WeaponParseResult()
     for line in data:
@@ -167,18 +193,29 @@ def handle_weapon_file(path: Path, base_class_name: str
             result.instant_damages[idx] = dmg
             continue
 
+        if "altammoloadouts" in line.lower():
+            if "altammoloadouts.empty" not in line.lower():
+                has_alt_ammo = True
+
         # if (result.class_name
         #         and result.bullet_names
         #         and result.parent_name
         #         and result.instant_damages != -1
         #         and result.pre_fire_length != -1):
         #     break
+
+    if has_alt_ammo:
+        matches = ALT_AMMO_LOADOUT_PATTERN.findall(strip_comments(raw))
+        if matches:
+            alt_data = matches[0][1]  # TODO: handle all.
+            result.alt_ammo_loadouts = parse_alt_ammo_loadouts(alt_data)
+
     return result
 
 
 def handle_bullet_file(path: Path, base_class_name: str
                        ) -> Optional[BulletParseResult]:
-    data = get_non_comment_lines(path)
+    data = get_non_comment_lines(path.read_text(encoding="latin-1"))
 
     if not data:
         return None
