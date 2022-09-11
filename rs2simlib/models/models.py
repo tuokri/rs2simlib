@@ -69,9 +69,12 @@ class WeaponParseResult(ParseResult):
     pre_fire_length: int = -1
 
 
+# TODO: NumProjectiles and Spread?
 @dataclass
-class AltAmmoLoadoutParseResult(WeaponParseResult):
-    pass
+class AltAmmoLoadoutParseResult(ParseResult):
+    # TODO: just build lists directly here?
+    bullet_names: Dict[int, str] = field(default_factory=dict)
+    instant_damages: Dict[int, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -94,7 +97,7 @@ class ClassBase:
     def __hash__(self) -> int:
         return hash(self.name)
 
-    @lru_cache(maxsize=128, typed=True)
+    @lru_cache(maxsize=64, typed=True)
     def get_attr(self,
                  attr_name: str,
                  invalid_value: Optional[Any] = None) -> Any:
@@ -173,6 +176,7 @@ class Bullet(ClassBase):
     def get_damage(self) -> int:
         return self.get_attr("damage", invalid_value=-1)
 
+    @lru_cache(maxsize=64, typed=True)
     def get_damage_falloff(self) -> np.ndarray:
         dmg_fo = self.damage_falloff
         if (dmg_fo > 0).any():
@@ -198,10 +202,12 @@ class Weapon(ClassBase):
     bullets: List[Optional[Bullet]]
     instant_damages: List[int]
     pre_fire_length: int
+    alt_ammo_loadouts: List[Optional["AltAmmoLoadout"]]
 
     def __hash__(self) -> int:
         return super().__hash__()
 
+    @lru_cache(maxsize=64, typed=True)
     def _get_attr_opt_list(self, attr: str) -> Optional[Any]:
         attrs = getattr(self, attr)
         if any(attrs):
@@ -230,6 +236,18 @@ class Weapon(ClassBase):
     def get_pre_fire_length(self) -> int:
         return self.get_attr("pre_fire_length", invalid_value=-1)
 
+    def get_alt_ammo_loadouts(self) -> List["AltAmmoLoadout"]:
+        return self._get_attr_opt_list("alt_ammo_loadouts")
+
+
+@dataclass
+class AltAmmoLoadout(ClassBase):
+    bullets: List[Optional[Bullet]]
+    instant_damages: List[int]
+
+    def __hash__(self) -> int:
+        return super().__hash__()
+
 
 PROJECTILE = Bullet(
     name="Projectile",
@@ -247,7 +265,8 @@ WEAPON = Weapon(
     bullets=[PROJECTILE],
     parent=None,
     pre_fire_length=50,
-    instant_damages=[0]
+    instant_damages=[0],
+    alt_ammo_loadouts=[],
 )
 WEAPON.parent = WEAPON
 

@@ -12,3 +12,7 @@ def test_pickle_jitted_functions():
     obj_g1 = pickle.loads(p_str_g1)
     obj_g7 = pickle.loads(p_str_g7)
     obj_sim = pickle.loads(p_str_sim)
+
+    assert obj_g1
+    assert obj_g7
+    assert obj_sim

@@ -6,6 +6,7 @@ from typing import Dict
 from typing import List
 from typing import MutableMapping
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 import numpy as np
@@ -123,19 +124,36 @@ def get_non_comment_lines(data: str) -> List[str]:
     ]
 
 
-def parse_alt_ammo_loadouts(data: str) -> Dict[int, AltAmmoLoadoutParseResult]:
-    attributes = [x.strip() for x in data.split(",") if x]
-    attributes = [re.sub(r"\s", "", x) for x in attributes]
-    attributes = [x.split("=") for x in attributes]
-    attrib_dict = {
-        key: value for key, value in attributes
-    }
+def parse_alt_ammo_loadouts(data: List[Tuple[str, str]],
+                            class_name: str
+                            ) -> Dict[int, AltAmmoLoadoutParseResult]:
+    result: Dict[int, AltAmmoLoadoutParseResult] = {}
 
-    pprint(attrib_dict)
-
-    result = {}
-    if "WeaponContentClassIndex" not in attrib_dict:
-        spread_1 = None
+    for index, alt_lo in data:
+        idx = int(index)
+        attributes = [x.strip() for x in alt_lo.split(",") if x]
+        attributes = [re.sub(r"\s", "", x) for x in attributes]
+        attr_tuples = [x.split("=") for x in attributes]
+        attrib_dict = {
+            key: value for key, value in attr_tuples
+        }
+        # TODO: refactor.
+        if "WeaponContentClassIndex" not in attrib_dict:
+            bullet_names = {
+                0: re.match(r"class'(.*)'", attrib_dict.get("WeaponProjectiles[0]", "class'None'")).group(1),
+                1: re.match(r"class'(.*)'", attrib_dict.get("WeaponProjectiles[1]", "class'None'")).group(1),
+            }
+            instant_damages = {
+                0: int(attrib_dict.get("InstantHitDamage[0]", 0)),
+                1: int(attrib_dict.get("InstantHitDamage[1]", 0)),
+            }
+            alt_class_name = f"{class_name}_AltAmmoLoadouts"
+            result[idx] = AltAmmoLoadoutParseResult(
+                class_name=alt_class_name,
+                parent_name=alt_class_name,
+                bullet_names=bullet_names,
+                instant_damages=instant_damages,
+            )
 
     return result
 
@@ -207,8 +225,10 @@ def handle_weapon_file(path: Path, base_class_name: str
     if has_alt_ammo:
         matches = ALT_AMMO_LOADOUT_PATTERN.findall(strip_comments(raw))
         if matches:
-            alt_data = matches[0][1]  # TODO: handle all.
-            result.alt_ammo_loadouts = parse_alt_ammo_loadouts(alt_data)
+            result.alt_ammo_loadouts = parse_alt_ammo_loadouts(
+                data=matches,
+                class_name=result.class_name,
+            )
 
     return result
 
