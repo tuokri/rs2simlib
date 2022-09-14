@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
-from functools import lru_cache
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -10,7 +9,7 @@ from typing import Optional
 from typing import Tuple
 
 import numpy as np
-
+import numpy.typing as npt
 from rs2simlib.drag import drag_g1
 from rs2simlib.drag import drag_g7
 
@@ -81,7 +80,8 @@ class AltAmmoLoadoutParseResult(ParseResult):
 class BulletParseResult(ParseResult):
     speed: float = -1
     damage: int = -1
-    damage_falloff: np.ndarray = np.array([0, 0])
+    damage_falloff: npt.NDArray[np.float64] = np.array(
+        [0.0, 0.0], dtype=np.float64)
     drag_func: DragFunction = DragFunction.Invalid
     ballistic_coeff: float = -1
 
@@ -97,7 +97,7 @@ class ClassBase:
     def __hash__(self) -> int:
         return hash(self.name)
 
-    @lru_cache(maxsize=64, typed=True)
+    # @lru_cache(maxsize=64, typed=True)
     def get_attr(self,
                  attr_name: str,
                  invalid_value: Optional[Any] = None) -> Any:
@@ -158,7 +158,7 @@ class Bullet(ClassBase):
     parent: Optional["Bullet"]
     speed: float
     damage: int
-    damage_falloff: np.ndarray
+    damage_falloff: npt.NDArray[np.float64]
     drag_func: DragFunction
     ballistic_coeff: float
 
@@ -176,8 +176,8 @@ class Bullet(ClassBase):
     def get_damage(self) -> int:
         return self.get_attr("damage", invalid_value=-1)
 
-    @lru_cache(maxsize=64, typed=True)
-    def get_damage_falloff(self) -> np.ndarray:
+    # @lru_cache(maxsize=64, typed=True)
+    def get_damage_falloff(self) -> npt.NDArray[np.float64]:
         dmg_fo = self.damage_falloff
         if (dmg_fo > 0).any():
             return dmg_fo
@@ -207,7 +207,7 @@ class Weapon(ClassBase):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    @lru_cache(maxsize=64, typed=True)
+    # @lru_cache(maxsize=64, typed=True)
     def _get_attr_opt_list(self, attr: str) -> Optional[Any]:
         attrs = getattr(self, attr)
         if any(attrs):
@@ -236,7 +236,7 @@ class Weapon(ClassBase):
     def get_pre_fire_length(self) -> int:
         return self.get_attr("pre_fire_length", invalid_value=-1)
 
-    def get_alt_ammo_loadouts(self) -> List["AltAmmoLoadout"]:
+    def get_alt_ammo_loadouts(self) -> List[Optional["AltAmmoLoadout"]]:
         return self._get_attr_opt_list("alt_ammo_loadouts")
 
 
@@ -253,7 +253,7 @@ PROJECTILE = Bullet(
     name="Projectile",
     damage=0,
     speed=0,
-    damage_falloff=np.array([0, 1]),
+    damage_falloff=np.array([0.0, 1.0], dtype=np.float64),
     ballistic_coeff=1.0,
     drag_func=DragFunction.G1,
     parent=None,
@@ -403,7 +403,9 @@ class BulletSimulation:
 
 
 # TODO: Rename to e.g. split_fo.
-def interp_dmg_falloff(arr: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def interp_dmg_falloff(
+        arr: npt.NDArray,
+) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Return damage falloff array as two separate
     arrays (x, y).
     """

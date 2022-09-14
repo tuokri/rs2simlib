@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import pytest
+
 from rs2simlib.fast import sim as fastsim
 
 # noinspection DuplicatedCode
@@ -66,6 +67,6 @@ sim_test_data = [
     "sim_params,sim_results,arr_len", sim_test_data)
 def test_fast_simulate(sim_params, sim_results, arr_len):
     results = fastsim.simulate(**sim_params)
-    assert np.size(results) == arr_len * 6
-    assert np.size(results, axis=0) == 6
+    assert np.size(results) == arr_len * 8
+    assert np.size(results, axis=0) == 8
     assert np.size(results, axis=1) == arr_len

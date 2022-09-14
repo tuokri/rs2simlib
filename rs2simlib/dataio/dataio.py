@@ -1,7 +1,6 @@
 import pickle
 import re
 from pathlib import Path
-from pprint import pprint
 from typing import Dict
 from typing import List
 from typing import MutableMapping
@@ -10,6 +9,7 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
+import numpy.typing as npt
 
 from rs2simlib.models import BulletParseResult
 from rs2simlib.models import ClassBase
@@ -80,7 +80,7 @@ def ploads_weapon_classes(pickle_bytes: bytes) -> MutableMapping[str, Weapon]:
     return pickle.loads(pickle_bytes)
 
 
-def parse_interp_curve(curve: str) -> np.ndarray:
+def parse_interp_curve(curve: str) -> npt.NDArray[np.float64]:
     """The parsed velocity damage falloff curve consists
     of (x,y) pairs, where x is remaining projectile
     speed in m/s and y is the damage scaler at that speed.
@@ -92,7 +92,7 @@ def parse_interp_curve(curve: str) -> np.ndarray:
         x = float(match.group(1))
         y = float(match.group(2))
         values.append([x, y])
-    return np.array(values)
+    return np.array(values, dtype=np.float64)
 
 
 def strip_comments(text: str):
@@ -124,6 +124,12 @@ def get_non_comment_lines(data: str) -> List[str]:
     ]
 
 
+def parse_alt_projectile(attribute_dict: dict, index: int) -> str:
+    string = attribute_dict.get(f"WeaponProjectiles[{index}]", "class'None'")
+    match = re.match(pattern=r"class'(.*)'", string=string)
+    return match.group(1) if match else "None"
+
+
 def parse_alt_ammo_loadouts(data: List[Tuple[str, str]],
                             class_name: str
                             ) -> Dict[int, AltAmmoLoadoutParseResult]:
@@ -140,8 +146,8 @@ def parse_alt_ammo_loadouts(data: List[Tuple[str, str]],
         # TODO: refactor.
         if "WeaponContentClassIndex" not in attrib_dict:
             bullet_names = {
-                0: re.match(r"class'(.*)'", attrib_dict.get("WeaponProjectiles[0]", "class'None'")).group(1),
-                1: re.match(r"class'(.*)'", attrib_dict.get("WeaponProjectiles[1]", "class'None'")).group(1),
+                0: parse_alt_projectile(attrib_dict, 1),
+                1: parse_alt_projectile(attrib_dict, 2),
             }
             instant_damages = {
                 0: int(attrib_dict.get("InstantHitDamage[0]", 0)),
