@@ -14,13 +14,6 @@ X2 = np.float64(0.00020874137882624)
 GRAVITY = np.float64(490.3325)  # 490.3325 UU/s = 9.80665 m/s
 
 
-@nb.njit(nb.float64(nb.float64, nb.float64, nb.float64), cache=True)
-def clamp(n: np.float64,
-          left: np.float64,
-          right: np.float64) -> np.float64:
-    return np.float64(n)
-
-
 @nb.njit(nb.float64(nb.float64, nb.float64[:], nb.float64[:]), cache=True)
 def calc_energy_transfer(
         vel_size_sq: np.float64,
@@ -33,11 +26,6 @@ def calc_energy_transfer(
         fp=falloff_y,
     )  # type: ignore[assignment]
     return energy_transfer
-    # return clamp(
-    #     energy_transfer,
-    #     left=falloff_y[0],
-    #     right=falloff_y[-1],
-    # )
 
 
 @nb.njit(nb.float64(nb.float64, nb.float64), cache=True)
@@ -48,7 +36,7 @@ def calc_power_left(
     return vel_size_sq / (muzzle_velocity ** 2)
 
 
-@nb.njit(cache=True)
+@nb.njit(nb.float64(nb.float64, nb.float64, nb.int64), cache=True)
 def calc_damage(
         power_left: np.float64,
         energy_transfer: np.float64,
@@ -91,14 +79,14 @@ def simulate(
         pre_fire_trace_len: np.int64,
         start_loc_x=np.float64(0.0),
         start_loc_y=np.float64(0.0),
-) -> npt.ArrayLike:
+) -> npt.NDArray[np.float64]:
     d_accumulated = np.float64(0.0)
     flight_time = np.float64(0.0)
-    energy_transfer = np.float64(-1.0)
-    power_left = np.float64(-1.0)
+    energy_transfer: np.float64
+    power_left: np.float64
     location = np.array([start_loc_x, start_loc_y], dtype=np.float64)
     bc_inverse = 1.0 / ballistic_coeff
-    velocity = np.array([aim_dir_x, aim_dir_y], np.float64)
+    velocity = np.array([aim_dir_x, aim_dir_y], dtype=np.float64)
     velocity /= np.linalg.norm(velocity)
     velocity *= muzzle_velocity
 
@@ -113,6 +101,7 @@ def simulate(
     bullet_velocity = np.empty(arr_len, dtype=np.float64)
     power_left_arr = np.empty(arr_len, dtype=np.float64)
     energy_transfer_arr = np.empty(arr_len, dtype=np.float64)
+    damage_with_prefire = np.empty(arr_len, dtype=np.float64)
 
     i = np.int64(0)
     while (flight_time < sim_time) and (i <= arr_len):
@@ -144,9 +133,13 @@ def simulate(
         location += loc_change
         d_accumulated += np.float64(abs(np.linalg.norm(prev_loc - location)))
         distance[i] = d_accumulated
-        # if d_accumulated <= pre_fire_trace_len:
-        #     damage[i] = instant_damage
-        # else:
+
+        # TODO: is there a better way of doing this?
+        #   Just let the data user do this on demand,
+        #   instead of pre-calculating it here?
+        if d_accumulated <= pre_fire_trace_len:
+            damage_with_prefire[i] = instant_damage
+
         v_size_sq = np.linalg.norm(velocity) ** 2
         energy_transfer = calc_energy_transfer(
             vel_size_sq=v_size_sq,
@@ -162,6 +155,7 @@ def simulate(
             energy_transfer=energy_transfer,
             base_damage=bullet_damage,
         )
+
         trajectory_x[i] = np.float64(location[0])
         trajectory_y[i] = np.float64(location[1])
         time_at_flight[i] = np.float64(flight_time)
@@ -188,10 +182,27 @@ def simulate(
     return ret
 
 
-def trigger_jit():
+def trigger_jit() -> bool:
     """Convenience function to trigger JIT compilation
     for all simulation functions.
     """
+    calc_damage(
+        np.float64(1.0),
+        np.float64(1.0),
+        np.int64(1),
+    )
+
+    calc_power_left(
+        np.float64(1.0),
+        np.float64(1.0),
+    )
+
+    calc_energy_transfer(
+        np.float64(1.0),
+        np.array([1.0], dtype=np.float64),
+        np.array([1.0], dtype=np.float64),
+    )
+
     drag_g1(np.float64(0.1))
     drag_g7(np.float64(0.1))
 
@@ -211,3 +222,5 @@ def trigger_jit():
         start_loc_x=np.float64(0.0),
         start_loc_y=np.float64(0.0),
     )
+
+    return True

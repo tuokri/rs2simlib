@@ -16,3 +16,6 @@ def test_pickle_jitted_functions():
     assert obj_g1
     assert obj_g7
     assert obj_sim
+
+    assert obj_g1(1.0) > 0.0
+    assert obj_g7(1.0) > 0.0
