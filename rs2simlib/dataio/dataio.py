@@ -146,8 +146,8 @@ def parse_alt_ammo_loadouts(data: List[Tuple[str, str]],
         # TODO: refactor.
         if "WeaponContentClassIndex" not in attrib_dict:
             bullet_names = {
-                0: parse_alt_projectile(attrib_dict, 1),
-                1: parse_alt_projectile(attrib_dict, 2),
+                0: parse_alt_projectile(attrib_dict, 0),
+                1: parse_alt_projectile(attrib_dict, 1),
             }
             instant_damages = {
                 0: int(attrib_dict.get("InstantHitDamage[0]", 0)),
