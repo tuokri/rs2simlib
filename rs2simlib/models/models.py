@@ -10,6 +10,7 @@ from typing import Tuple
 
 import numpy as np
 import numpy.typing as npt
+
 from rs2simlib.drag import drag_g1
 from rs2simlib.drag import drag_g7
 
@@ -191,6 +192,12 @@ class Bullet(ClassBase):
 
     def get_drag_func(self) -> DragFunction:
         return self.get_attr("drag_func", invalid_value=DragFunction.Invalid)
+
+    def get_drag_func_int(self) -> int:
+        return {
+            DragFunction.G1: 1,
+            DragFunction.G7: 7,
+        }[self.get_drag_func()]
 
     def get_ballistic_coeff(self) -> float:
         return self.get_attr("ballistic_coeff", invalid_value=-1)
