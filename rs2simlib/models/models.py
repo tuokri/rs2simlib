@@ -7,6 +7,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -152,6 +153,9 @@ class ClassBase:
             else:
                 raise ValueError("parent not found")
         return next_parent.find_parent(parent_name)
+
+
+ClassLike = TypeVar("ClassLike", bound=ClassBase)
 
 
 @dataclass

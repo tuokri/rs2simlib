@@ -1,6 +1,7 @@
 from .models import Bullet
 from .models import BulletParseResult
 from .models import ClassBase
+from .models import ClassLike
 from .models import DragFunction
 from .models import PROJECTILE
 from .models import ParseResult
@@ -14,6 +15,7 @@ __all__ = [
     "Bullet",
     "BulletParseResult",
     "ClassBase",
+    "ClassLike",
     "DragFunction",
     "PROJECTILE",
     "ParseResult",

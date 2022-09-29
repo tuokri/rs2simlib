@@ -13,10 +13,10 @@ import numpy.typing as npt
 
 from rs2simlib.models import BulletParseResult
 from rs2simlib.models import ClassBase
+from rs2simlib.models import ClassLike
 from rs2simlib.models import DragFunction
 from rs2simlib.models import PROJECTILE
 from rs2simlib.models import WEAPON
-from rs2simlib.models import Weapon
 from rs2simlib.models import WeaponParseResult
 from rs2simlib.models.models import AltAmmoLoadoutParseResult
 
@@ -62,21 +62,14 @@ ALT_AMMO_LOADOUT_PATTERN = re.compile(
 )
 
 
-# def read_weapon_classes(path: Path) -> MutableMapping[str, Weapon]:
-#     with path.open("r", encoding="utf-8") as f:
-#         data = json.loads(f.read())
-#     weapon_classes = {}
-#     return weapon_classes
-
-def pdumps_weapon_classes(weapon_classes: MutableMapping[str, Weapon]):
+def pdumps_class_map(class_map: MutableMapping[str, ClassLike]):
     return pickle.dumps({
         k: v for
-        k, v in weapon_classes.items()
-        # if k != WEAPON.name
+        k, v in class_map.items()
     })
 
 
-def ploads_weapon_classes(pickle_bytes: bytes) -> MutableMapping[str, Weapon]:
+def ploads_class_map(pickle_bytes: bytes) -> MutableMapping[str, ClassLike]:
     return pickle.loads(pickle_bytes)
 
 
