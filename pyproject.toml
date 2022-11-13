@@ -10,7 +10,8 @@ authors = [
 ]
 description = "Projectile and weapon physics simulation library for Rising Storm 2: Vietnam."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "AGPL-3.0-or-later"
+license-files = { paths = ["LICENSE"] }
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
