@@ -1,3 +1,5 @@
+from .models import AltAmmoLoadout
+from .models import AltAmmoLoadoutParseResult
 from .models import Bullet
 from .models import BulletParseResult
 from .models import ClassBase
@@ -12,6 +14,8 @@ from .models import WeaponSimulation
 from .models import interp_dmg_falloff
 
 __all__ = [
+    "AltAmmoLoadout",
+    "AltAmmoLoadoutParseResult",
     "Bullet",
     "BulletParseResult",
     "ClassBase",

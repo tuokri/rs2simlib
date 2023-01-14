@@ -20,8 +20,9 @@ from rs2simlib.models import WEAPON
 from rs2simlib.models import WeaponParseResult
 from rs2simlib.models.models import AltAmmoLoadoutParseResult
 
+# TODO: use match-case instead of ifs in parsing functions?
 INSTANT_DAMAGE_PATTERN = re.compile(
-    r"^\s*InstantHitDamage\(([\w_\d]+)\)\s*=\s*(\d+).*$",
+    r"^\s*InstantHitDamage\(([\w_]+)\)\s*=\s*(\d+).*$",
     flags=re.IGNORECASE,
 )
 PRE_FIRE_PATTERN = re.compile(
@@ -29,7 +30,7 @@ PRE_FIRE_PATTERN = re.compile(
     flags=re.IGNORECASE,
 )
 DRAG_FUNC_PATTERN = re.compile(
-    r"^\s*DragFunction\s*=\s*([\w\d_]+).*$",
+    r"^\s*DragFunction\s*=\s*([\w_]+).*$",
     flags=re.IGNORECASE,
 )
 BALLISTIC_COEFF_PATTERN = re.compile(
@@ -49,15 +50,15 @@ FALLOFF_PATTERN = re.compile(
     flags=re.IGNORECASE,
 )
 CLASS_PATTERN = re.compile(
-    r"^\s*class\s+([\w]+)\s+extends\s+([\w\d_]+)\s*.*[;\n\s]*$",
+    r"^\s*class\s+(\w+)\s+extends\s+([\w_]+)\s*.*[;\n\s]*$",
     flags=re.IGNORECASE,
 )
 WEAPON_BULLET_PATTERN = re.compile(
-    r"^\s*WeaponProjectiles\(([\w_\d]+)\)\s*=\s*class\s*'(.*)'.*$",
+    r"^\s*WeaponProjectiles\(([\w_]+)\)\s*=\s*class\s*'(.*)'.*$",
     flags=re.IGNORECASE,
 )
 ALT_AMMO_LOADOUT_PATTERN = re.compile(
-    r"AltAmmoLoadouts\s*\((\d)\)\s*=\s*{\s*\n*\(([\d\w\n\s\[\]='\",._\-/]+)\)[\n\s]*}",
+    r"AltAmmoLoadouts\s*\((\d)\)\s*=\s*{\s*\n*\(([\w\n\s\[\]='\",._\-/]+)\)[\n\s]*}",
     flags=re.IGNORECASE,
 )
 
