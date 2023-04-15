@@ -82,8 +82,8 @@ class AltAmmoLoadoutParseResult(ParseResult):
 class BulletParseResult(ParseResult):
     speed: float = -1
     damage: int = -1
-    damage_falloff: npt.NDArray[np.float64] = np.array(
-        [0.0, 0.0], dtype=np.float64)
+    damage_falloff: npt.NDArray[np.float64] = field(default_factory=np.array(
+        [0.0, 0.0], dtype=np.float64))
     drag_func: DragFunction = DragFunction.Invalid
     ballistic_coeff: float = -1
 
