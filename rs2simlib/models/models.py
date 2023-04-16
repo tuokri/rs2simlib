@@ -291,8 +291,10 @@ str_to_df = {
 @dataclass
 class WeaponSimulation:
     weapon: Weapon
-    velocity: np.ndarray = np.array([1, 0], dtype=np.float64)
-    location: np.ndarray = np.array([0, 1], dtype=np.float64)
+    velocity: np.ndarray = field(
+        default_factory=lambda: np.array([1, 0], dtype=np.float64))
+    location: np.ndarray = field(
+        default_factory=lambda: np.array([0, 1], dtype=np.float64))
     bullet: Bullet = field(init=False)
     sim: "BulletSimulation" = field(init=False)
 
