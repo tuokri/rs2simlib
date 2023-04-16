@@ -82,8 +82,9 @@ class AltAmmoLoadoutParseResult(ParseResult):
 class BulletParseResult(ParseResult):
     speed: float = -1
     damage: int = -1
-    damage_falloff: npt.NDArray[np.float64] = field(default_factory=np.array(
-        [0.0, 0.0], dtype=np.float64))
+    damage_falloff: npt.NDArray[np.float64] = field(
+        default_factory=lambda: np.array(
+            [0.0, 0.0], dtype=np.float64))
     drag_func: DragFunction = DragFunction.Invalid
     ballistic_coeff: float = -1
 
@@ -337,8 +338,10 @@ class BulletSimulation:
     flight_time: float = 0
     bc_inverse: float = 0
     distance_traveled_uu: float = 0
-    velocity: np.ndarray = field(default_factory=np.array([1, 0], dtype=np.float64))
-    location: np.ndarray = field(default_factory=np.array([0, 1], dtype=np.float64))
+    velocity: np.ndarray = field(
+        default_factory=lambda: np.array([1, 0], dtype=np.float64))
+    location: np.ndarray = field(
+        default_factory=lambda: np.array([0, 1], dtype=np.float64))
     fo_x: np.ndarray = field(init=False)
     fo_y: np.ndarray = field(init=False)
 
