@@ -12,7 +12,7 @@ description = "Projectile and weapon physics simulation library for Rising Storm
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 license-files = { paths = ["LICENSE"] }
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
