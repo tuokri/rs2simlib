@@ -1,7 +1,8 @@
 import numpy as np
-
+import pytest
 from rs2simlib.dataio import handle_bullet_file
 from rs2simlib.models import DragFunction
+
 from . import data_dir
 
 uscript_dir = data_dir / "UnrealScript"
@@ -33,3 +34,21 @@ def test_handle_bullet_file():
     assert not xx_result_partial.damage_falloff.any()
     assert xx_result_partial.drag_func == DragFunction.Invalid
     assert xx_result_partial.ballistic_coeff == 0.138
+
+    xx_result_empty = handle_bullet_file(
+        path=uscript_dir / "empty.uc",
+        base_class_name="ROBullet",
+    )
+    assert not xx_result_empty
+
+    xx_result_garbage = handle_bullet_file(
+        path=uscript_dir / "TypeXXBullet_Garbage.uc",
+        base_class_name="ROBullet",
+    )
+    assert not xx_result_garbage
+
+    with pytest.raises(ValueError):
+        xx_result_wrong = handle_bullet_file(
+            path=uscript_dir / "TypeXXBullet_WrongName.uc",
+            base_class_name="ROBullet",
+        )

@@ -1,0 +1,1 @@
+class TypeXXBullet_HelloThisIsTheWrongName extends Object;

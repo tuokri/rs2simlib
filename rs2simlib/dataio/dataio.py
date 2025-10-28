@@ -10,7 +10,6 @@ from typing import Union
 
 import numpy as np
 import numpy.typing as npt
-
 from rs2simlib.models import BulletParseResult
 from rs2simlib.models import ClassBase
 from rs2simlib.models import ClassLike
@@ -106,7 +105,7 @@ def strip_comments(text: str):
 
 def check_name(name1: str, name2: str):
     if name1.lower() != name2.lower():
-        raise RuntimeError(
+        raise ValueError(
             f"class name doesn't match filename: '{name1}' != '{name2}'")
 
 
@@ -174,18 +173,21 @@ def handle_weapon_file(
     for line in data:
         if not result.class_name:
             match = CLASS_PATTERN.match(line)
-            if match:
-                class_name = match.group(1)
-                check_name(class_name, path.stem)
-                parent_name = match.group(2)
-                if not is_weapon_str(parent_name):
-                    if class_name == base_class_name:
-                        parent_name = base_class_name
-                    else:
-                        return None
-                result.parent_name = parent_name
-                result.class_name = class_name
-                continue
+            # No point in parsing the rest if a class is not found.
+            if not match:
+                return None
+
+            class_name = match.group(1)
+            check_name(class_name, path.stem)
+            parent_name = match.group(2)
+            if not is_weapon_str(parent_name):
+                if class_name == base_class_name:
+                    parent_name = base_class_name
+                else:
+                    return None
+            result.parent_name = parent_name
+            result.class_name = class_name
+            continue
 
         if result.pre_fire_length == - 1:
             match = PRE_FIRE_PATTERN.match(line)
@@ -249,18 +251,22 @@ def handle_bullet_file(
     for line in data:
         if not result.parent_name:
             match = CLASS_PATTERN.match(line)
-            if match:
-                class_name = match.group(1)
-                check_name(class_name, path.stem)
-                parent_name = match.group(2)
-                if not is_bullet_str(parent_name):
-                    if class_name == base_class_name:
-                        parent_name = base_class_name
-                    else:
-                        return None
-                result.class_name = class_name
-                result.parent_name = parent_name
-                continue
+            # No point in parsing the rest if a class is not found.
+            if not match:
+                return None
+
+            class_name = match.group(1)
+            check_name(class_name, path.stem)
+            parent_name = match.group(2)
+            if not is_bullet_str(parent_name):
+                if class_name == base_class_name:
+                    parent_name = base_class_name
+                else:
+                    return None
+            result.class_name = class_name
+            result.parent_name = parent_name
+            continue
+
         if result.damage == -1:
             match = DAMAGE_PATTERN.match(line)
             if match:
