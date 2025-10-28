@@ -76,7 +76,7 @@ def ploads_class_map(pickle_bytes: bytes) -> MutableMapping[str, ClassLike]:
 
 def parse_interp_curve(curve: str) -> npt.NDArray[np.float64]:
     """The parsed velocity damage falloff curve consists
-    of (x,y) pairs, where x is remaining projectile
+    of (x,y) pairs, where x is the remaining projectile
     speed in m/s and y is the damage scaler at that speed.
     """
     values = []
@@ -158,9 +158,11 @@ def parse_alt_ammo_loadouts(data: List[Tuple[str, str]],
     return result
 
 
-def handle_weapon_file(path: Path, base_class_name: str
-                       ) -> Optional[WeaponParseResult]:
-    raw = path.read_text(encoding="latin-1")
+def handle_weapon_file(
+        path: Path,
+        base_class_name: str,
+) -> Optional[WeaponParseResult]:
+    raw = path.read_text(encoding="latin-1", errors="replace")
     data = get_non_comment_lines(raw)
 
     if not data:
@@ -233,9 +235,12 @@ def handle_weapon_file(path: Path, base_class_name: str
     return result
 
 
-def handle_bullet_file(path: Path, base_class_name: str
-                       ) -> Optional[BulletParseResult]:
-    data = get_non_comment_lines(path.read_text(encoding="latin-1"))
+def handle_bullet_file(
+        path: Path,
+        base_class_name: str,
+) -> Optional[BulletParseResult]:
+    raw = path.read_text(encoding="latin-1", errors="replace")
+    data = get_non_comment_lines(raw)
 
     if not data:
         return None
@@ -293,16 +298,19 @@ def handle_bullet_file(path: Path, base_class_name: str
     return result
 
 
-def process_file(path: Path
-                 ) -> Optional[Union[BulletParseResult, WeaponParseResult]]:
+def process_file(
+        path: Path,
+) -> Optional[Union[BulletParseResult, WeaponParseResult]]:
     path = path.resolve()
     stem = path.stem
     class_str = ""
+
     with path.open("r", encoding="latin-1") as f:
         for line in f:
             match = CLASS_PATTERN.match(line)
             if match:
                 class_str = match.group(0)
+
     if is_weapon_str(stem) or is_weapon_str(class_str):
         return handle_weapon_file(path, base_class_name=WEAPON.name)
     elif is_bullet_str(stem) or is_bullet_str(class_str):
