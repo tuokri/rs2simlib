@@ -48,7 +48,7 @@ def test_handle_bullet_file():
     assert not xx_result_garbage
 
     with pytest.raises(ValueError):
-        xx_result_wrong = handle_bullet_file(
+        _ = handle_bullet_file(
             path=uscript_dir / "TypeXXBullet_WrongName.uc",
             base_class_name="ROBullet",
         )
