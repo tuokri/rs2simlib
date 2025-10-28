@@ -59,3 +59,11 @@ draw = "python scripts/draw_plots.py"
 exclude = [
     "rs2simlib/models/",
 ]
+
+[[tool.mypy.overrides]]
+module = "numba"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "numba.core.types"
+ignore_missing_imports = true
