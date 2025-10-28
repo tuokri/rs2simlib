@@ -24,7 +24,7 @@ def calc_energy_transfer(
         x=vel_size_sq,
         xp=falloff_x,
         fp=falloff_y,
-    )  # type: ignore[assignment]
+    )
     return energy_transfer
 
 
