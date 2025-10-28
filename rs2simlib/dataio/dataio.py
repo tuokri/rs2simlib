@@ -10,6 +10,8 @@ from typing import Union
 
 import numpy as np
 import numpy.typing as npt
+
+from rs2simlib.models import AltAmmoLoadoutParseResult
 from rs2simlib.models import BulletParseResult
 from rs2simlib.models import ClassBase
 from rs2simlib.models import ClassLike
@@ -17,7 +19,6 @@ from rs2simlib.models import DragFunction
 from rs2simlib.models import PROJECTILE
 from rs2simlib.models import WEAPON
 from rs2simlib.models import WeaponParseResult
-from rs2simlib.models.models import AltAmmoLoadoutParseResult
 
 # TODO: use match-case instead of ifs in parsing functions?
 INSTANT_DAMAGE_PATTERN = re.compile(

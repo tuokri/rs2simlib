@@ -1,14 +1,15 @@
 import numpy as np
 import pytest
-from rs2simlib.dataio import handle_bullet_file
-from rs2simlib.models import DragFunction
 
+from rs2simlib.dataio import handle_bullet_file
+from rs2simlib.dataio import strip_comments
+from rs2simlib.models import DragFunction
 from . import data_dir
 
 uscript_dir = data_dir / "UnrealScript"
 
 
-def test_handle_bullet_file():
+def test_handle_bullet_file() -> None:
     xx_result = handle_bullet_file(
         path=uscript_dir / "TypeXXBullet.uc",
         base_class_name="ROBullet",
@@ -52,3 +53,76 @@ def test_handle_bullet_file():
             path=uscript_dir / "TypeXXBullet_WrongName.uc",
             base_class_name="ROBullet",
         )
+
+
+strip_comments_test_data = [
+    (
+        "",
+        "",
+    ),
+    (
+        "/* */",
+        " ",
+    ),
+    (
+        "//",
+        " ",
+    ),
+    (
+        "" * 500,
+        "" * 500,
+    ),
+    (
+        """
+        #include <stdio.h> // Inline comment.
+
+        /* Our main function! */
+        int main(void)
+        {
+            // Return some stuff.
+            return 0;
+
+            /* This is a comment block
+             * // with some nested stuff
+             * ?
+             * !
+             */
+        }
+        """,
+        # NOTE: trailing whitespaces! Important!
+        """
+        #include <stdio.h>  
+
+         
+        int main(void)
+        {
+             
+            return 0;
+
+             
+        }
+        """,
+    ),
+    (
+        """
+        async def main() -> None:
+            x = await do_stuff(some_arg)  # Python comment!
+            x /= 5
+            x = x / 2
+            print("/* C comment! */")
+        """,
+        """
+        async def main() -> None:
+            x = await do_stuff(some_arg)  # Python comment!
+            x /= 5
+            x = x / 2
+            print("/* C comment! */")
+        """,
+    ),
+]
+
+
+@pytest.mark.parametrize("src,stripped", strip_comments_test_data)
+def test_strip_comments(src: str, stripped: str) -> None:
+    result = strip_comments(src)
+    assert result == stripped
