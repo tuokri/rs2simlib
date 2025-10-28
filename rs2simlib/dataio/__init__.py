@@ -1,9 +1,13 @@
+from .dataio import handle_bullet_file
+from .dataio import handle_weapon_file
 from .dataio import pdumps_class_map
 from .dataio import ploads_class_map
 from .dataio import process_file
 from .dataio import resolve_parent
 
 __all__ = [
+    "handle_bullet_file",
+    "handle_weapon_file",
     "pdumps_class_map",
     "ploads_class_map",
     "process_file",
