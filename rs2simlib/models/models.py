@@ -80,6 +80,7 @@ class AltAmmoLoadoutParseResult(ParseResult):
 
 @dataclass
 class BulletParseResult(ParseResult):
+    # TODO: add damage type?
     speed: float = -1
     damage: int = -1
     damage_falloff: npt.NDArray[np.float64] = field(
@@ -101,6 +102,7 @@ class ClassBase:
         return hash(self.name)
 
     # @lru_cache(maxsize=64, typed=True)
+    # TODO: cache this with e.g. _attr_name__CACHED = value?
     def get_attr(self,
                  attr_name: str,
                  invalid_value: Optional[Any] = None) -> Any:
@@ -183,6 +185,7 @@ class Bullet(ClassBase):
         return self.get_attr("damage", invalid_value=-1)
 
     # @lru_cache(maxsize=64, typed=True)
+    # TODO: cache this value. Use e.g. _damage_falloff to store the value?
     def get_damage_falloff(self) -> npt.NDArray[np.float64]:
         dmg_fo = self.damage_falloff
         if (dmg_fo > 0).any():
