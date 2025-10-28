@@ -55,9 +55,6 @@ dependencies = [
 draw = "python scripts/draw_plots.py"
 
 [tool.mypy]
-plugins = [
-    "numpy.typing.mypy_plugin"
-]
 # TODO: fix models typing.
 exclude = [
     "scripts/",

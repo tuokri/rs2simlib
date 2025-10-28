@@ -107,7 +107,7 @@ def simulate(
     while (flight_time < sim_time) and (i <= arr_len):
         flight_time += time_step
         # noinspection PyTypeChecker
-        v_size: np.float64 = np.linalg.norm(velocity)
+        v_size = np.linalg.norm(velocity)
         # noinspection PyTypeChecker
         v: np.float64 = v_size * SCALE_FACTOR_INVERSE
         mach = v * X1
