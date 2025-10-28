@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "rs2simlib"
 dynamic = ["version"]
 authors = [
-    { name = "tuokri", email = "tuokri@tuta.io" },
+    { name = "Tuomo Kriikkula", email = "tuokri@tuta.io" },
 ]
 description = "Projectile and weapon physics simulation library for Rising Storm 2: Vietnam."
 readme = "README.md"
@@ -57,19 +57,5 @@ draw = "python scripts/draw_plots.py"
 [tool.mypy]
 # TODO: fix models typing.
 exclude = [
-    "scripts/",
     "rs2simlib/models/",
-]
-
-[[tool.mypy.overrides]]
-module = "numba"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "numba.core.types"
-ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore::numba.NumbaExperimentalFeatureWarning",
 ]
