@@ -22,7 +22,6 @@ dependencies = [
     "numba>=0.62.1",
     "numpy>=2.3.4",
     "scipy>=1.15.2",
-    "Flake8-pyproject>=1.2.3",
     "matplotlib>=3.10.7",
 ]
 
@@ -39,18 +38,13 @@ version-file = "rs2simlib/_version.py"
 dependencies = [
     "pytest",
     "mypy",
-    "flake8",
+    "ruff",
 ]
 
 [tool.hatch.envs.test.scripts]
 test = "pytest"
 types = "mypy rs2simlib --show-error-codes"
-lint = "scripts/lint.sh"
-
-[tool.hatch.envs.test.overrides]
-platform.windows.scripts = [
-    'lint=.\scripts\lint.bat"',
-]
+lint = "ruff check ."
 
 [tool.hatch.envs.plots]
 dependencies = [
@@ -81,11 +75,4 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::numba.NumbaExperimentalFeatureWarning",
-]
-
-[tool.flake8]
-per-file-ignores = [
-    "rs2simlib/fast/drag/fastdrag.py:C901",
-    "rs2simlib/drag/drag.py:C901",
-    "rs2simlib/dataio/dataio.py:C901",
 ]
