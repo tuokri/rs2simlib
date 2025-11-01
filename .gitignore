@@ -128,8 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# PyCharm
-.idea/
-
 # Dynamically generated version file.
 rs2simlib/_version.py
