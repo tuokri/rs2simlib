@@ -22,7 +22,7 @@ dependencies = [
     "antlr4-tools>=0.2.2",
     "matplotlib>=3.10.7",
     "numba>=0.62.1",
-    "numpy>=2.3.4",
+    "numpy>=2.4.4",
     "scipy>=1.16.2",
 ]
 
