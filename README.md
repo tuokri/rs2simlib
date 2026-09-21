@@ -14,3 +14,5 @@ to generate models used in the simulations.
     - Good reference using ANTLR: https://github.com/EliotVU/UnrealScript-Language-Service.
 
 - Fix ruff complaints.
+
+- Modernize project and use uv.
