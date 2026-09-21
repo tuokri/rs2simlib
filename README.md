@@ -12,3 +12,5 @@ to generate models used in the simulations.
 
 - Replace adhoc regex parsing with ANTLR.
     - Good reference using ANTLR: https://github.com/EliotVU/UnrealScript-Language-Service.
+
+- Fix ruff complaints.
