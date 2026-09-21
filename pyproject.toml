@@ -20,10 +20,10 @@ classifiers = [
 ]
 dependencies = [
     "antlr4-tools>=0.2.2",
-    "matplotlib>=3.10.7",
-    "numba>=0.65.0",
-    "numpy>=2.3.4",
-    "scipy>=1.16.2",
+    "matplotlib>=3.11.2",
+    "numba>=0.67.0",
+    "numpy>=2.5.3",
+    "scipy>=1.18.1",
 ]
 
 [project.urls]
