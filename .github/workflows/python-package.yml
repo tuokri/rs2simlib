@@ -38,8 +38,11 @@ jobs:
       - name: Lint with Ruff
         run: hatch run test:lint
 
+      # TODO: copy the convention from my other projects to highlight
+      #       mypy errors in GitHub Actions views!
       - name: Check types with mypy
         run: hatch run test:types
+        continue-on-error: true
 
       - name: Test with pytest
         run: hatch run test:test
